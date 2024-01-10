@@ -15,25 +15,26 @@
       #messages > li { padding: 0.5rem 1rem; }
       #messages > li:nth-child(odd) { background: #efefef; }
     </style>
-    <script src="/socket.io/socket.io.js"></script>
+     <script src="https://cdn.socket.io/4.7.3/socket.io.min.js" integrity="sha384-+miq58Ltmjm+SSP5g8Ok6dpMO/6R4n8xe/x1Yj0Bdb9kiEz25LTnWv/GZQTRQamg" crossorigin="anonymous"></script>
     <script>
         const socket = io();
         setTimeout(() => {
-            const form = document.getElementById('form');
-            const input = document.getElementById('input');
+            // const form = document.getElementById('form');
+            // const input = document.getElementById('input');
+
+            // form.addEventListener('submit', (e) => {
+            //     e.preventDefault();
+            //     if (input.value) {
+            //     socket.emit('chat message', input.value);
+            //     input.value = '';
+            //     }
+            // });
+
             const messages = document.getElementById('messages');
 
-            form.addEventListener('submit', (e) => {
-                e.preventDefault();
-                if (input.value) {
-                socket.emit('chat message', input.value);
-                input.value = '';
-                }
-            });
-
-            socket.on('chat message', (msg) => {
+            socket.on('caseupdate.complete.1', (msg) => {
                 const item = document.createElement('li');
-                item.textContent = msg;
+                item.textContent = JSON.stringify(msg);
                 messages.appendChild(item);
                 window.scrollTo(0, document.body.scrollHeight);
             });
