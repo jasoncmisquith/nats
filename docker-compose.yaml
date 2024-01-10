@@ -1,0 +1,12 @@
+services:
+  nats-server:
+    container_name: nats
+    ports:
+      - 4222:4222
+      - 6222:6222
+      - 8222:8222
+      - 8080:8080
+    image: nats:2.10.7-alpine3.18
+    command: ["-c", "/tmp/nats.conf"]
+    volumes:
+      - ./nats.conf:/tmp/nats.conf

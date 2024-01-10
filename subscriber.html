@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WS</title>
+    <script type="module">
+        import {
+            connect,
+            JSONCodec,
+            consumerOpts
+        } from "https://cdn.jsdelivr.net/npm/nats.ws@1.10.0/esm/nats.js";
+        const jc = JSONCodec();
+        const nc = await connect({
+            servers: ["ws://localhost:8080"]
+        })
+        const opts = consumerOpts()
+        opts.orderedConsumer()
+
+        const sub = await nc.jetstream().subscribe('accountid', opts)
+        for await (const msg of sub) {
+            console.log(msg);
+            const data = jc.decode(msg.data);
+            console.log(data)
+            document.getElementById('1').insertAdjacentHTML('afterend', `<p>${JSON.stringify(data)}</p>`)
+        }
+
+    </script>
+</head>
+<body>
+    <div id="1">
+
+    </div>
+    
+</body>
+</html>
