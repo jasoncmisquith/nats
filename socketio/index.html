@@ -33,12 +33,13 @@
             const messages = document.getElementById('messages');
 
             socket.on('caseupdate.complete.1', (msg) => {
+              console.log(msg);
                 const item = document.createElement('li');
                 item.textContent = JSON.stringify(msg);
                 messages.appendChild(item);
                 window.scrollTo(0, document.body.scrollHeight);
             });
-        }, 1000)
+        }, 10)
 
     </script>
   </head>

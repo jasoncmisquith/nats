@@ -97,5 +97,56 @@ nats publish caseupdate.complete '{"caseid": 1234, "status": "success"}' --count
 
 
 ```
+jason@Jason:~/work/nats$ nats s add CASEUPDATE
+[local] ? Subjects caseupdate.>
+[local] ? Storage file
+[local] ? Replication 1
+[local] ? Retention Policy Work Queue
+[local] ? Discard Policy New
+[local] ? Stream Messages Limit -1
+[local] ? Per Subject Messages Limit -1
+[local] ? Total Stream Size -1
+[local] ? Message TTL 60s
+[local] ? Max Message Size -1
+[local] ? Duplicate tracking time window 1m0s
+X Sorry, your reply was invalid: "?" is not a valid answer, please try again.
+[local] ? Allow message Roll-ups No
+[local] ? Allow message deletion No
+[local] ? Allow purging subjects or the entire stream No
+```
 
+```
+
+nats consumer add CASEUPDATE COMPLETE
+[local] ? Delivery target (empty for Pull Consumers) 
+[local] ? Start policy (all, new, last, subject, 1h, msg sequence) all
+[local] ? Acknowledgment policy explicit
+[local] ? Replay policy instant
+[local] ? Filter Stream by subject (blank for all) caseupdate.complete.*
+[local] ? Maximum Allowed Deliveries -1
+[local] ? Maximum Acknowledgments Pending 0
+[local] ? Deliver headers only without bodies No
+[local] ? Add a Retry Backoff Policy No
+Information for Consumer CASEUPDATE > COMPLETE created 2024-01-11T02:22:04+05:30
+
+Configuration:
+
+                    Name: COMPLETE
+               Pull Mode: true
+          Filter Subject: caseupdate.complete.*
+          Deliver Policy: All
+              Ack Policy: Explicit
+                Ack Wait: 30.00s
+           Replay Policy: Instant
+         Max Ack Pending: 1,000
+       Max Waiting Pulls: 512
+
+State:
+
+  Last Delivered Message: Consumer sequence: 0 Stream sequence: 0
+    Acknowledgment Floor: Consumer sequence: 0 Stream sequence: 0
+        Outstanding Acks: 0 out of maximum 1,000
+    Redelivered Messages: 0
+    Unprocessed Messages: 0
+           Waiting Pulls: 0 of maximum 512
 ```

@@ -20,6 +20,8 @@ const consumer = "COMPLETE";
 // opts.orderedConsumer()
 const js = nc.jetstream();
 const completed_consumer = await js.consumers.get(stream, consumer);
+console.log(completed_consumer);
+
 
 const app = express();
 const server = createServer(app);
@@ -30,6 +32,19 @@ server.listen(3000, () => {
 });
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+async function shutDown() {
+  console.info('Got SIGTERM. Graceful shutdown start', new Date().toISOString())
+  // start graceul shutdown here
+  console.log("here");
+  await nc.close();
+  process.exit(0);
+  
+}
+
+process.on('SIGTERM', shutDown)
+
+process.on('SIGINT', shutDown);
 
 app.get('/', (req, res) => {
   res.sendFile(join(__dirname, 'index.html'));
@@ -50,6 +65,8 @@ while (true) {
       for await (const m of messages) {
         const msg = jc.decode(m.data);
         msg['seq'] = m.seq;
+        console.log("********************");
+        
         console.log(msg);
         console.log(m.seq);
         console.log(m.subject);
@@ -61,6 +78,8 @@ while (true) {
       console.log(`consume failed: ${err.message}`);
     }
   }
+
+
 
 // for await (const msg of sub) {
 //     console.log(msg);
