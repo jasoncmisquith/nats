@@ -18,28 +18,36 @@
      <script src="https://cdn.socket.io/4.7.3/socket.io.min.js" integrity="sha384-+miq58Ltmjm+SSP5g8Ok6dpMO/6R4n8xe/x1Yj0Bdb9kiEz25LTnWv/GZQTRQamg" crossorigin="anonymous"></script>
     <script>
         const socket = io();
-        setTimeout(() => {
-            // const form = document.getElementById('form');
-            // const input = document.getElementById('input');
+        const roomname = 'caseupdate.complete.' + window.location.pathname.split('/')[1];
+        
+        function addMessageToHTML(message) {
+          const messages = document.getElementById('messages');
+          console.log(roomname);
+          const item = document.createElement('li');
+          item.textContent = JSON.stringify(message);
+          messages.appendChild(item);
+          window.scrollTo(0, document.body.scrollHeight);
+        }
 
-            // form.addEventListener('submit', (e) => {
-            //     e.preventDefault();
-            //     if (input.value) {
-            //     socket.emit('chat message', input.value);
-            //     input.value = '';
-            //     }
-            // });
+        socket.on('connect', () => {
+          addMessageToHTML('Joining ' + roomname);
+          socket.emit('joinroom', roomname);
+        });
 
-            const messages = document.getElementById('messages');
+        socket.on(roomname, (message) => {
+          if (socket.recovered) {
+            message = "Recovered  " + message;
+          }
+          console.log(message);
+          addMessageToHTML(message);
+        });
 
-            socket.on('caseupdate.complete.1', (msg) => {
-              console.log(msg);
-                const item = document.createElement('li');
-                item.textContent = JSON.stringify(msg);
-                messages.appendChild(item);
-                window.scrollTo(0, document.body.scrollHeight);
-            });
-        }, 10)
+        socket.onAny((event, ...args) => {
+          console.log("all events => ", event, args);
+        });
+        
+        // socket.on()
+
 
     </script>
   </head>
