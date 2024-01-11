@@ -20,12 +20,17 @@ const consumer = "COMPLETE";
 // opts.orderedConsumer()
 const js = nc.jetstream();
 const completed_consumer = await js.consumers.get(stream, consumer);
-console.log(completed_consumer);
-
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  connectionStateRecovery: {
+    // // the backup duration of the sessions and the packets
+    // maxDisconnectionDuration: 2 * 60 * 1000,
+    // // whether to skip middlewares upon successful recovery
+    // skipMiddlewares: true,
+  }
+});
 
 server.listen(3000, () => {
   console.log('server running at http://localhost:3000');
@@ -33,44 +38,45 @@ server.listen(3000, () => {
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-async function shutDown() {
-  console.info('Got SIGTERM. Graceful shutdown start', new Date().toISOString())
-  // start graceul shutdown here
-  console.log("here");
-  await nc.close();
-  process.exit(0);
-  
-}
-
-process.on('SIGTERM', shutDown)
-
-process.on('SIGINT', shutDown);
-
-app.get('/', (req, res) => {
+app.get('/:id', (req, res) => {
   res.sendFile(join(__dirname, 'index.html'));
 });
 
+let socketdata;
+io.on('connection', (socket) => {
+  console.log('connected');
+  socketdata = socket;
+  
+  socket.on('joinroom', (roomName) => {
+    console.log(socket.recovered);
+    
+    socket.join(roomName);
+    io.to(roomName).emit(roomName, 'User joined the room ' + roomName);
+  });
 
-// io.on('connection', (socket) => {
-//     socket.on('chat message', (msg) => {
-//       io.emit('chat message', msg);
-//     });
-//   });
+
+  socket.on('disconnect', (socket) => {
+    console.log("User disconnected ", socket);
+    
+  });
+});
 
 while (true) {
-    console.log('executing');
     console.log("waiting for messages");
     const messages = await completed_consumer.consume();
+    
     try {
       for await (const m of messages) {
+        console.log(socketdata!.recovered, 'are the rooms');
+        
         const msg = jc.decode(m.data);
         msg['seq'] = m.seq;
-        console.log("********************");
-        
+        console.log('subject is ', m.subject);
         console.log(msg);
-        console.log(m.seq);
-        console.log(m.subject);
-        io.emit(m.subject, msg);
+        
+        const l = io.to(m.subject).emit(m.subject, msg);
+        // console.log(l);
+        
         // m.nak();
         m.ack();
       }
@@ -78,8 +84,6 @@ while (true) {
       console.log(`consume failed: ${err.message}`);
     }
   }
-
-
 
 // for await (const msg of sub) {
 //     console.log(msg);
